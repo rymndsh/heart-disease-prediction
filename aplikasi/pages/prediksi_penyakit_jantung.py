@@ -2,6 +2,11 @@ import streamlit as st
 import numpy as np
 import pickle
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+root_dir = os.path.dirname(current_dir)
+
+model_path = os.path.join(root_dir, 'penyakit_jantung_xgb.sav')
 # Page configuration
 st.set_page_config(page_title="Heart Disease Prediction", layout="centered")
 
@@ -76,9 +81,15 @@ st.markdown("""
 
 # Load model
 try:
-    model = pickle.load(open('penyakit_jantung_xgb.sav', 'rb'))
+    model = pickle.load(open(model_path, 'rb'))
 except Exception as e:
-    st.error(f"Failed to load model: {e}")
+    st.error(f"🚨 Gagal memuat model!")
+    st.error(f"Detail error: {e}")
+    
+    # Menampilkan daftar file yang benar-benar ada di folder tersebut
+    if os.path.exists(root_dir):
+        files_in_dir = os.listdir(root_dir)
+        st.warning(f"File yang terbaca di folder aplikasi saat ini: {files_in_dir}")
 
 # Header
 st.markdown('<h1 class="title-text">🫀 Heart Disease Prediction</h1>', unsafe_allow_html=True)
