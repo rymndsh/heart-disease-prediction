@@ -1,97 +1,46 @@
 import streamlit as st
 import numpy as np
 import pickle
+import os
 
-# Page configuration
+# --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="Heart Disease Prediction", layout="centered")
 
-# Custom CSS for minimalist design & subtle visual elements
+# --- CUSTOM CSS ---
 st.markdown("""
     <style>
-    /* Import Inter font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        background-color: #fcfcfc;
-    }
-
-    /* Subtle background pattern (Heartbeat Pattern) */
-    .stApp {
-        background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
-        background-attachment: fixed;
-    }
-
-    /* Main Container Styling */
-    .main-container {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        border: 1px solid #f0f0f0;
-    }
-
-    /* Header Styling */
-    .title-text {
-        text-align: center;
-        color: #E94E77;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-    
-    .subtitle-text {
-        text-align: center;
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 30px;
-    }
-
-    /* Subtle divider */
-    hr {
-        border: 0;
-        height: 1px;
-        background: linear-gradient(to right, transparent, #E94E77, transparent);
-        margin: 20px 0;
-    }
-
-    /* Button Styling */
-    .stButton>button {
-        width: 100%;
-        border-radius: 12px;
-        height: 50px;
-        background-color: #E94E77;
-        color: white;
-        border: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton>button:hover {
-        background-color: #D43F67;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(233, 78, 119, 0.3);
-    }
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; background-color: #fcfcfc; }
+    .stApp { background-image: url("https://www.transparenttextures.com/patterns/cubes.png"); background-attachment: fixed; }
+    .main-container { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
+    .title-text { text-align: center; color: #E94E77; font-weight: 600; margin-bottom: 5px; }
+    .subtitle-text { text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
+    hr { border: 0; height: 1px; background: linear-gradient(to right, transparent, #E94E77, transparent); margin: 20px 0; }
+    .stButton>button { width: 100%; border-radius: 12px; height: 50px; background-color: #E94E77; color: white; border: none; font-weight: 600; transition: all 0.3s ease; }
+    .stButton>button:hover { background-color: #D43F67; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233, 78, 119, 0.3); }
     </style>
 """, unsafe_allow_html=True)
 
-# Load model
+# --- LOAD MODEL (ROBUST PATH METHOD) ---
+# Mencari lokasi file secara dinamis agar tidak error di Cloud
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+model_path = os.path.join(root_dir, 'penyakit_jantung_xgb.sav')
+
 try:
     model = pickle.load(open(model_path, 'rb'))
+    model_loaded = True
 except Exception as e:
-    st.error(f"🚨 Gagal memuat model!")
-    st.error(f"Detail error: {e}")
-    
-    # Menampilkan daftar file yang benar-benar ada di folder tersebut
-    if os.path.exists(root_dir):
-        files_in_dir = os.listdir(root_dir)
-        st.warning(f"File yang terbaca di folder aplikasi saat ini: {files_in_dir}")
+    model_loaded = False
+    st.error(f"🚨 Failed to load model! Could not find 'penyakit_jantung_xgb.sav'.")
+    st.info(f"System was looking in: {model_path}")
 
-# Header
+# --- HEADER ---
 st.markdown('<h1 class="title-text">🫀 Heart Disease Prediction</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle-text">Analyze patient health data with machine learning precision</p>', unsafe_allow_html=True)
 st.markdown('<hr>', unsafe_allow_html=True)
 
-# Form Layout using Columns
+# --- FORM LAYOUT ---
 with st.container():
     st.subheader("📋 Clinical Information")
     col1, col2 = st.columns(2)
@@ -115,29 +64,32 @@ with st.container():
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Prediction Logic
+# --- PREDICTION LOGIC ---
 if st.button("🔍 Run Analysis"):
-    input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
-                             thalach, exang, oldpeak, slope, ca, thal]], dtype=np.float64)
-
-    prediction = model.predict(input_data)
-    probability = model.predict_proba(input_data)[0]
-
-    st.markdown("---")
-    
-    if prediction[0] == 1:
-        st.error(f"### Patient Indicates Heart Disease", icon="🚨")
-        st.metric("Risk Level", f"{probability[1]*100:.1f}%")
-        st.warning("Please consult a cardiologist immediately for further examination.")
+    if not model_loaded:
+        st.error("Cannot run analysis because the model file is missing.")
     else:
-        st.success(f"### Patient's Heart Looks Healthy", icon="💖")
-        st.metric("Risk Level", f"{probability[1]*100:.1f}%")
-        st.info("Heart condition is within normal limits. Maintain a healthy diet and regular exercise.")
+        input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
+                                 thalach, exang, oldpeak, slope, ca, thal]], dtype=np.float64)
 
-    with st.expander("📄 Data Summary"):
-        st.json({
-            "Profile": f"{age} yrs, {'M' if sex==1 else 'F'}",
-            "Blood Pressure": trestbps,
-            "Cholesterol": chol,
-            "Prediction": "Positive" if prediction[0] == 1 else "Negative"
-        })
+        prediction = model.predict(input_data)
+        probability = model.predict_proba(input_data)[0]
+
+        st.markdown("---")
+        
+        if prediction[0] == 1:
+            st.error(f"### Patient Indicates Heart Disease", icon="🚨")
+            st.metric("Risk Level", f"{probability[1]*100:.1f}%")
+            st.warning("Please consult a cardiologist immediately for further examination.")
+        else:
+            st.success(f"### Patient's Heart Looks Healthy", icon="💖")
+            st.metric("Risk Level", f"{probability[1]*100:.1f}%")
+            st.info("Heart condition is within normal limits. Maintain a healthy diet and regular exercise.")
+
+        with st.expander("📄 Data Summary"):
+            st.json({
+                "Profile": f"{age} yrs, {'M' if sex==1 else 'F'}",
+                "Blood Pressure": trestbps,
+                "Cholesterol": chol,
+                "Prediction": "Positive" if prediction[0] == 1 else "Negative"
+            })
