@@ -21,14 +21,46 @@ Buka terminal (CMD/PowerShell/Bash) dan jalankan perintah berikut:
 ```bash
 git clone [https://github.com/rymndsh/heart-disease-prediction](https://github.com/rymndsh/heart-disease-prediction)
 cd heart-disease-prediction
-
+```
 ### 3. Membuat Virtual Environment (Sangat Disarankan)
 Langkah ini penting agar *library* proyek ini tidak bentrok dengan proyek Python lainnya di komputermu. Jalankan perintah berikut:
-```bash
 # Pengguna Windows
+```bash
 python -m venv venv
 venv\Scripts\activate
-
+```
 # Pengguna Mac/Linux
+``` bash
 python3 -m venv venv
 source venv/bin/activate
+```
+### 4. Instalasi Dependensi
+Setelah virtual environment aktif (biasanya ditandai dengan tulisan (venv) di awal baris terminal), instal semua paket yang diperlukan:
+``` bash
+pip install -r requirements.txt
+```
+### 5. Menjalankan Aplikasi
+Terakhir, jalankan server lokal Streamlit:
+``` bash
+streamlit run app.py
+```
+
+📂 Struktur File
+app.py: File utama untuk antarmuka web Streamlit.
+
+model_xgboost.pkl: Model XGBoost yang sudah dilatih dan dioptimasi.
+
+requirements.txt: Daftar semua library Python yang dibutuhkan.
+
+notebook/: Folder berisi proses pengolahan data dan eksperimen model (opsional).
+
+🚀 Teknologi yang Digunakan
+Language: Python
+
+ML Framework: XGBoost, Scikit-Learn
+
+Dashboard: Streamlit
+
+Data Prep: Pandas, NumPy
+
+Visualization: Matplotlib, Seaborn
