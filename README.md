@@ -45,7 +45,7 @@ Terakhir, jalankan server lokal Streamlit:
 streamlit run app.py
 ```
 
-📂 Struktur File
+# 📂 Struktur File
 app.py: File utama untuk antarmuka web Streamlit.
 
 model_xgboost.pkl: Model XGBoost yang sudah dilatih dan dioptimasi.
@@ -54,7 +54,7 @@ requirements.txt: Daftar semua library Python yang dibutuhkan.
 
 notebook/: Folder berisi proses pengolahan data dan eksperimen model (opsional).
 
-🚀 Teknologi yang Digunakan
+# 🚀 Teknologi yang Digunakan
 Language: Python
 
 ML Framework: XGBoost, Scikit-Learn
